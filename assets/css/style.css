@@ -1,0 +1,9 @@
+.animal-button {
+  margin-right: .5em;
+  margin-bottom: .5em;
+}
+
+.animal-button:first-letter,
+#animal-name:first-letter { 
+  text-transform: uppercase;
+}
