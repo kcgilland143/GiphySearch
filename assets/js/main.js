@@ -5,7 +5,7 @@ var animalIndex = 0
 
 var localAnimals = window.localStorage.getItem('animals')
 if (localAnimals) { animals = JSON.parse(localAnimals) }
-window.localStorage.setItem('animals', animals)
+window.localStorage.setItem('animals', JSON.stringify(animals))
 
 renderButtons(animals)
 $('#animal-pictures').empty()
@@ -104,8 +104,9 @@ function newGifThumbnail (obj) {
     .attr('data-still', still)
     .attr('data-animated', animated)
   link.append(img)
+  link.append($('<span>').text(`Rating: ${rating}`))
   container.append(link)
-  container.append($('<span>').text(`Rating: ${rating}`))
+  container.append()
   return container
 }
 
