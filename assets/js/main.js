@@ -11,7 +11,7 @@ renderButtons(animals)
 $('#animal-pictures').empty()
 
 // dynamic button list/render
-$(document.body).on('keyup', '#animal-text', function (event) {
+$(document.body).on('keyup', '#animal-text', function buttonOnEnterKey (event) {
   if (event.keyCode === 13) { $('#add-button').trigger('click') }
 })
 $('#add-button').on('click', function (event) {
@@ -45,33 +45,36 @@ $(document.body).on('click', '.animal-button', function (event) {
     container.empty()
     $('#animal-name').text(animals[animalIndex])
   }
-  requestNewGifs(this.textContent, 10, 10 * offset)
+  requestNewGifs(this.textContent, 10, offset)
     .done(resp => {
       var gifs = resp.data
+      offset = offset + 10
       gifs.forEach(i => {
         newGifThumbnail(i).prependTo(container)
       })
     })
-  offset++
 })
 
 // infinite scroll
-$(document).on('scroll', function (event) {
+$(document).on('scroll', function addGifsToContainer (event) {
   var container = $('#animal-pictures')
   if ($(this).scrollTop() + $(window).height() === $(this).height()) {
-    requestNewGifs(animals[animalIndex], 10, 10 * offset)
+    requestNewGifs(animals[animalIndex], 4, offset)
       .done(resp => {
         var gifs = resp.data
-        gifs.forEach(i => {
-          newGifThumbnail(i).appendTo(container)
-        })
+        if (gifs.length) {
+          offset = offset + 4
+          gifs.forEach(i => {
+            newGifThumbnail(i).appendTo(container)
+          })
+        } else {
+          console.log('no more gifs :(')
+        }
       })
-    offset++
   }
 })
 
-
-$(document.body).on('click', '.animal-thumbnail .thumbnail img', function (event) {
+$(document.body).on('click', '.animal-picture', function (event) {
   togglePlay(this)
 })
 
@@ -100,14 +103,16 @@ function requestNewGifs (tag, limit = 10, offset = 0) {
 }
 
 function newGifThumbnail (obj) {
-  var still = obj.images.fixed_height_still.url
-  var animated = obj.images.fixed_height.url
-  var width = obj.images.fixed_height.width
-  var height = obj.images.fixed_height.height
+  var still = obj.images.original_still.url
+  var animated = obj.images.original.url
+  var width = obj.images.original.width
+  var height = obj.images.original.height
   var rating = obj.rating
+  console.log(obj)
 
   var container = $('<div>')
     .addClass('col-xs-12 col-sm-6 col-md-4 col-lg-3')
+    .addClass('pull-left')
     .addClass('animal-thumbnail')
   var link = $('<a>')
     .attr('class', 'thumbnail')
@@ -115,6 +120,7 @@ function newGifThumbnail (obj) {
     .attr('src', still)
     .addClass('still')
     .addClass('animal-picture')
+    .addClass('img-responsive')
     .attr('width', width)
     .attr('height', height)
     .attr('data-still', still)
@@ -122,7 +128,6 @@ function newGifThumbnail (obj) {
   link.append(img)
   link.append($('<span>').text(`Rating: ${rating}`))
   container.append(link)
-  container.append()
   return container
 }
 
