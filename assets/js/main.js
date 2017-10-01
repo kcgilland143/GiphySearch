@@ -55,6 +55,22 @@ $(document.body).on('click', '.animal-button', function (event) {
   offset++
 })
 
+// infinite scroll
+$(document).on('scroll', function (event) {
+  var container = $('#animal-pictures')
+  if ($(this).scrollTop() + $(window).height() === $(this).height()) {
+    requestNewGifs(animals[animalIndex], 10, 10 * offset)
+      .done(resp => {
+        var gifs = resp.data
+        gifs.forEach(i => {
+          newGifThumbnail(i).appendTo(container)
+        })
+      })
+    offset++
+  }
+})
+
+
 $(document.body).on('click', '.animal-thumbnail .thumbnail img', function (event) {
   togglePlay(this)
 })
