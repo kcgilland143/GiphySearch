@@ -3,6 +3,11 @@
   margin-bottom: .5em;
 }
 
+.animal-thumbnail a img{
+  min-height: 200px;
+  max-height:600px;
+}
+
 .animal-button:first-letter,
 #animal-name:first-letter { 
   text-transform: uppercase;

@@ -28,7 +28,7 @@ $('#add-button').on('click', function (event) {
 // make ajax call for tag
 // if not current animal, clear and render new, else prepend
 // if ctrlKey down, remove button
-$(document.body).on('click', '.animal-button', function (event) {
+$(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton (event) {
   var thisIndex = animals.indexOf(this.textContent)
   var container = $('#animal-pictures')
   if (event.ctrlKey) {
@@ -45,25 +45,25 @@ $(document.body).on('click', '.animal-button', function (event) {
     container.empty()
     $('#animal-name').text(animals[animalIndex])
   }
-  requestNewGifs(this.textContent, 10, offset)
+  requestNewGifs(this.textContent, 12, offset)
     .done(resp => {
       var gifs = resp.data
-      offset = offset + 10
       gifs.forEach(i => {
         newGifThumbnail(i).prependTo(container)
       })
     })
+  offset = offset + 12
 })
 
 // infinite scroll
 $(document).on('scroll', function addGifsToContainer (event) {
   var container = $('#animal-pictures')
-  if ($(this).scrollTop() + $(window).height() === $(this).height()) {
+  if ($(this).scrollTop() + $(window).height() >= ($(this).height() * 0.99)) {
+    offset = offset + 4
     requestNewGifs(animals[animalIndex], 4, offset)
       .done(resp => {
         var gifs = resp.data
         if (gifs.length) {
-          offset = offset + 4
           gifs.forEach(i => {
             newGifThumbnail(i).appendTo(container)
           })
@@ -103,12 +103,11 @@ function requestNewGifs (tag, limit = 10, offset = 0) {
 }
 
 function newGifThumbnail (obj) {
-  var still = obj.images.original_still.url
-  var animated = obj.images.original.url
-  var width = obj.images.original.width
-  var height = obj.images.original.height
+  var still = obj.images.fixed_height_still.url
+  var animated = obj.images.fixed_height.url
+  var width = obj.images.fixed_height.width
+  var height = obj.images.fixed_height.height
   var rating = obj.rating
-  console.log(obj)
 
   var container = $('<div>')
     .addClass('col-xs-12 col-sm-6 col-md-4 col-lg-3')
