@@ -41,7 +41,6 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
     return
   }
   if (animalIndex !== thisIndex) {
-    console.log(this.textContent,thisIndex,animalIndex)
     offset = 0
     animalIndex = thisIndex
     $('#animal-pictures').empty()
