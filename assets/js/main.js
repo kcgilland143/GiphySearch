@@ -1,7 +1,7 @@
 /* eslint-env jquery */
 var animals = ['frog', 'dog', 'hawk']
 var offset = 0
-var animalIndex = 0
+var animalIndex = false
 
 var localAnimals = window.localStorage.getItem('animals')
 if (localAnimals) { animals = JSON.parse(localAnimals) }
@@ -30,7 +30,8 @@ $('#add-button').on('click', function (event) {
 // if ctrlKey down, remove button
 $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton (event) {
   var thisIndex = animals.indexOf(this.textContent)
-  var container = $('#animal-pictures')
+  var container = $('<div class="responsive-columns">')
+  // $('#animal-pictures')
   if (event.ctrlKey) {
     animals.splice(thisIndex, 1)
     if (animals.length) {
@@ -40,33 +41,36 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
     return
   }
   if (animalIndex !== thisIndex) {
+    console.log(this.textContent,thisIndex,animalIndex)
     offset = 0
     animalIndex = thisIndex
-    container.empty()
+    $('#animal-pictures').empty()
     $('#animal-name').text(animals[animalIndex])
   }
-  requestNewGifs(this.textContent, 12, offset)
+  requestNewGifs(this.textContent, 8, offset)
     .done(resp => {
       var gifs = resp.data
       gifs.forEach(i => {
         newGifThumbnail(i).prependTo(container)
       })
+      container.prependTo($('#animal-pictures'))
     })
   offset = offset + 12
 })
 
 // infinite scroll
 $(document).on('scroll', function addGifsToContainer (event) {
-  var container = $('#animal-pictures')
-  if ($(this).scrollTop() + $(window).height() >= ($(this).height() * 0.99)) {
-    offset = offset + 4
-    requestNewGifs(animals[animalIndex], 4, offset)
+  var container = $('<div class="responsive-columns">')
+  if ($(this).scrollTop() + $(window).height() === $(this).height()) {
+    offset = offset + 12
+    requestNewGifs(animals[animalIndex], 12, offset)
       .done(resp => {
         var gifs = resp.data
         if (gifs.length) {
           gifs.forEach(i => {
             newGifThumbnail(i).appendTo(container)
           })
+          container.appendTo($('#animal-pictures'))
         } else {
           console.log('no more gifs :(')
         }
@@ -103,20 +107,17 @@ function requestNewGifs (tag, limit = 10, offset = 0) {
 }
 
 function newGifThumbnail (obj) {
-  var still = obj.images.fixed_height_still.url
-  var animated = obj.images.fixed_height.url
-  var width = obj.images.fixed_height.width
-  var height = obj.images.fixed_height.height
+  var still = obj.images.original_still.url
+  var animated = obj.images.original.url
+  var width = obj.images.original.width
+  var height = obj.images.original.height
   var rating = obj.rating
 
   var container = $('<div>')
-    .addClass('col-xs-12 col-sm-6 col-md-4 col-lg-3')
-    .addClass('pull-left')
     .addClass('animal-thumbnail')
   var link = $('<a>')
     .attr('class', 'thumbnail')
   var img = $('<img>')
-    .attr('src', still)
     .addClass('still')
     .addClass('animal-picture')
     .addClass('img-responsive')
@@ -124,8 +125,12 @@ function newGifThumbnail (obj) {
     .attr('height', height)
     .attr('data-still', still)
     .attr('data-animated', animated)
+    .attr('src', still)
+  var caption = $('<div>')
+    .addClass('caption')
+    .append($('<h4>').html(`Rating: <small>${rating.toUpperCase()}</small>`))
   link.append(img)
-  link.append($('<span>').text(`Rating: ${rating}`))
+  link.append(caption)
   container.append(link)
   return container
 }
