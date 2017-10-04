@@ -32,7 +32,12 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
   var thisIndex = animals.indexOf(this.textContent)
   var heldImages = images[animals[thisIndex]]
   if (event.ctrlKey) {
-    delete heldImages
+    console.log('deleting..', heldImages)
+    delete images[animals[thisIndex]] //remove all held image data
+    if (animalIndex === thisIndex) { 
+      $('#animal-name').empty() //empty container if deleting current page
+      columns.container.empty()
+    }
     animals.splice(thisIndex, 1)
     if (animals.length) {
       window.localStorage.setItem('animals', JSON.stringify(animals))
@@ -58,10 +63,23 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
       var gifs = resp.data
       gifs.forEach(i => {
         heldImages.push(i)
-        let target = columns.getShortest()
-        newGifThumbnail(i).prependTo(target)
+        newGifThumbnail(i).prependTo(columns.getShortest())
       })
     })
+})
+
+$(window).on('resize', function reRenderImages (event) {
+  console.log(columns.maxColumns !== columns.getMaxColumns())
+  if (columns.maxColumns !== columns.getMaxColumns()) {
+    let heldImages = images[animals[animalIndex]]
+    columns.container.empty()
+    columns.initColumns()
+    if (heldImages.length) {
+      heldImages.forEach(i => {
+        newGifThumbnail(i).appendTo(columns.getShortest())
+      })
+    }
+  } 
 })
 
 // infinite scroll
@@ -75,8 +93,7 @@ $(document).on('scroll', function addGifsToContainer (event) {
         if (gifs.length) {
           gifs.forEach(i => {
             images[animals[animalIndex]].push(i)
-            let target = columns.getShortest()
-            newGifThumbnail(i).appendTo(target)
+            newGifThumbnail(i).appendTo(columns.getShortest())
           })
         } else {
           console.log('no more gifs :(')
