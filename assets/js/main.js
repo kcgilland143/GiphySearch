@@ -86,8 +86,8 @@ $(window).on('resize', function reRenderImages (event) {
 $(document).on('scroll', function addGifsToContainer (event) {
   var container = $('<div class="responsive-columns">')
   if ($(this).scrollTop() + $(window).height() === $(this).height()) {
-    offset += 8
-    requestNewGifs(animals[animalIndex], 8, offset)
+    offset += 4
+    requestNewGifs(animals[animalIndex], 4, offset)
       .done(resp => {
         var gifs = resp.data
         if (gifs.length) {
