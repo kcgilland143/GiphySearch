@@ -1,5 +1,6 @@
 /* eslint-env jquery */
 var animals = ['frog', 'dog', 'hawk']
+var images = {}
 var offset = 0
 var animalIndex = false
 
@@ -31,8 +32,10 @@ $('#add-button').on('click', function (event) {
 $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton (event) {
   var thisIndex = animals.indexOf(this.textContent)
   var container = $('<div class="responsive-columns">')
+  var heldImages = images[animals[thisIndex]]
   // $('#animal-pictures')
   if (event.ctrlKey) {
+    delete heldImages
     animals.splice(thisIndex, 1)
     if (animals.length) {
       window.localStorage.setItem('animals', JSON.stringify(animals))
@@ -41,15 +44,21 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
     return
   }
   if (animalIndex !== thisIndex) {
-    offset = 0
+    offset = heldImages.length || 0
     animalIndex = thisIndex
     $('#animal-pictures').empty()
     $('#animal-name').text(animals[animalIndex])
+    if (offset) {
+      heldImages.forEach(function (i) { 
+        newGifThumbnail(i).appendTo(container)
+      })
+    }
   }
   requestNewGifs(this.textContent, 8, offset)
     .done(resp => {
       var gifs = resp.data
       gifs.forEach(i => {
+        heldImages.push(i)
         newGifThumbnail(i).prependTo(container)
       })
       container.prependTo($('#animal-pictures'))
@@ -67,6 +76,7 @@ $(document).on('scroll', function addGifsToContainer (event) {
         var gifs = resp.data
         if (gifs.length) {
           gifs.forEach(i => {
+            images[animals[animalIndex]].push(i)
             newGifThumbnail(i).appendTo(container)
           })
           container.appendTo($('#animal-pictures'))
@@ -93,6 +103,7 @@ function renderButtons (buttons) {
   var container = $('.buttons').empty()
   buttons.forEach(function (btnName) {
     container.append(newAnimalButton(btnName))
+    if (!images[btnName]) { images[btnName] = []} // initalize image array for button
   })
 }
 
