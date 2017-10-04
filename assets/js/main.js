@@ -9,7 +9,6 @@ if (localAnimals) { animals = JSON.parse(localAnimals) }
 window.localStorage.setItem('animals', JSON.stringify(animals))
 
 renderButtons(animals)
-$('#animal-pictures').empty()
 
 // dynamic button list/render
 $(document.body).on('keyup', '#animal-text', function buttonOnEnterKey (event) {
@@ -18,7 +17,7 @@ $(document.body).on('keyup', '#animal-text', function buttonOnEnterKey (event) {
 $('#add-button').on('click', function (event) {
   var inputElement = $('#animal-text')
   var inputString = $(inputElement).val().trim().toLowerCase()
-  $(inputElement).val('')
+  inputElement.val('')
   if (inputString) {
     animals.push(inputString)
     window.localStorage.setItem('animals', JSON.stringify(animals))
@@ -31,9 +30,7 @@ $('#add-button').on('click', function (event) {
 // if ctrlKey down, remove button
 $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton (event) {
   var thisIndex = animals.indexOf(this.textContent)
-  var container = $('<div class="responsive-columns">')
   var heldImages = images[animals[thisIndex]]
-  // $('#animal-pictures')
   if (event.ctrlKey) {
     delete heldImages
     animals.splice(thisIndex, 1)
@@ -46,7 +43,8 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
   if (animalIndex !== thisIndex) {
     offset = heldImages.length || 0
     animalIndex = thisIndex
-    $('#animal-pictures').empty()
+    columns.container.empty()
+    columns.initColumns()
     $('#animal-name').text(animals[animalIndex])
     if (offset) {
       heldImages.forEach(function (i) { 
@@ -54,32 +52,32 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
       })
     }
   }
-  requestNewGifs(this.textContent, 8, offset)
+  offset += 12
+  requestNewGifs(this.textContent, 12, offset)
     .done(resp => {
       var gifs = resp.data
       gifs.forEach(i => {
         heldImages.push(i)
-        newGifThumbnail(i).prependTo(container)
+        let target = columns.getShortest()
+        newGifThumbnail(i).prependTo(target)
       })
-      container.prependTo($('#animal-pictures'))
     })
-  offset = offset + 12
 })
 
 // infinite scroll
 $(document).on('scroll', function addGifsToContainer (event) {
   var container = $('<div class="responsive-columns">')
   if ($(this).scrollTop() + $(window).height() === $(this).height()) {
-    offset = offset + 12
-    requestNewGifs(animals[animalIndex], 12, offset)
+    offset += 8
+    requestNewGifs(animals[animalIndex], 8, offset)
       .done(resp => {
         var gifs = resp.data
         if (gifs.length) {
           gifs.forEach(i => {
             images[animals[animalIndex]].push(i)
-            newGifThumbnail(i).appendTo(container)
+            let target = columns.getShortest()
+            newGifThumbnail(i).appendTo(target)
           })
-          container.appendTo($('#animal-pictures'))
         } else {
           console.log('no more gifs :(')
         }
@@ -157,5 +155,34 @@ function togglePlay (imgElem) {
     $(imgElem)
       .addClass('still')
       .attr('src', swap)
+  }
+}
+
+var columns = {
+  container: $('#animal-pictures'),
+  colWidth: 406,
+
+  getMaxColumns: function getMaxColumns () {
+    return Math.floor(this.container[0].clientWidth / this.colWidth)
+  },
+
+  initColumns: function initializeColumns () {
+    this.maxColumns = this.getMaxColumns()
+    console.log(this.maxColumns)
+    for (var i = 0; i < this.maxColumns; i++) {
+      $('<div class="responsive-columns">')
+        .appendTo(this.container)
+    }
+    this.columns = this.container.children('.responsive-columns')
+    return this
+  },
+
+  getShortest: function getShortestColumn () {
+    var arr = Array.from(this.columns)
+    return arr.reduce(function (acc, item) {
+      if (acc.clientHeight <= item.clientHeight) {
+        return acc
+      } else return item
+    })
   }
 }

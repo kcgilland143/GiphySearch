@@ -17,20 +17,24 @@
       <div class="page-header"><h1>What would you like to see?</h1></div>
       <div class="col-md-12">
         <div class="buttons">
-          <button id="frog" class="animal-button">Frog</button><a href="#"></a>
-          <button id="dog" class='animal-button'>Dog</button>
+          <button id="frog" class="animal-button btn btn-default">Frog</button><a href="#"></a>
+          <button id="dog" class='animal-button btn btn-default'>Dog</button>
         </div>
-        <div id="add-button-controls" class="input-group">
-          <span class="input-group-btn">
-            <button id="add-button" class="btn btn-primary">Fetch!</button>
-          </span>
-          <input id="animal-text" type="text" class="form-control" tabindex="0" placeholder="Add new animal" maxlength="20">
+        <div class="col-md-2">
+          <div id="add-button-controls" class="input-group">
+            <span class="input-group-btn">
+              <button id="add-button" class="btn btn-primary">Fetch!</button>
+            </span>
+            <input id="animal-text" type="text" class="form-control" tabindex="0" placeholder="Add new animal" maxlength="20">
+          </div>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="page-header">
-        <h3 id="animal-name">Example</h3>
+        <span id="animal-name" class="h3 animal-name">Example</span>
+        <a href="#" class="text-secondary"><span class="glyphicon glyphicon-pencil"></span></a>
+        <a href="#" class="text-danger"><span class="glyphicon glyphicon-remove"></span></a>
       </div>
       <!-- class="responsive-columns" -->
       <div id="animal-pictures" >
