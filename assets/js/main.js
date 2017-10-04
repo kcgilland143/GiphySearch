@@ -48,7 +48,7 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
     $('#animal-name').text(animals[animalIndex])
     if (offset) {
       heldImages.forEach(function (i) { 
-        newGifThumbnail(i).appendTo(container)
+        newGifThumbnail(i).appendTo(columns.getShortest())
       })
     }
   }
@@ -163,7 +163,7 @@ var columns = {
   colWidth: 406,
 
   getMaxColumns: function getMaxColumns () {
-    return Math.floor(this.container[0].clientWidth / this.colWidth)
+    return Math.floor(this.container[0].parentElement.clientWidth / this.colWidth)
   },
 
   initColumns: function initializeColumns () {
@@ -173,6 +173,7 @@ var columns = {
       $('<div class="responsive-columns">')
         .appendTo(this.container)
     }
+    this.container.width(this.maxColumns * this.colWidth)
     this.columns = this.container.children('.responsive-columns')
     return this
   },

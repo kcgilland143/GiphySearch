@@ -11,6 +11,10 @@ body {
   width: 200px;
 }
 
+.animal-container {
+  margin: 0 auto;
+}
+
 .animal-thumbnail a img{
   min-height: 200px;
   max-height:600px;
