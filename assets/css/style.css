@@ -7,13 +7,17 @@ body {
   margin-bottom: .5em;
 }
 
+.form-control {
+  width: 200px;
+}
+
 .animal-thumbnail a img{
   min-height: 200px;
   max-height:600px;
 }
 
 .animal-button:first-letter,
-#animal-name:first-letter { 
+.animal-name:first-letter { 
   text-transform: uppercase;
 }
 
@@ -46,12 +50,17 @@ img.animal-picture {
     -webkit-column-gap: 5px;
     column-gap: 5px;
 
-    margin-bottom: 5px;
+    display: inline-block;
+
+    margin: 0 3px 5px 3px;
 
     line-height: 5px;
+
+    width: 400px;
+    vertical-align: top;
 }
 
-@media (min-width: 800px) {
+/*@media (min-width: 800px) {
   .responsive-columns {
     -ms-column-count: 2;
     -webkit-column-count: 2;
@@ -77,4 +86,4 @@ img.animal-picture {
     -moz-column-count: 4;
     column-count: 4;
   }
-}
+}*/

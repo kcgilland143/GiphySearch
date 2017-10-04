@@ -1,5 +1,6 @@
 /* eslint-env jquery */
 var animals = ['frog', 'dog', 'hawk']
+var images = {}
 var offset = 0
 var animalIndex = false
 
@@ -8,7 +9,6 @@ if (localAnimals) { animals = JSON.parse(localAnimals) }
 window.localStorage.setItem('animals', JSON.stringify(animals))
 
 renderButtons(animals)
-$('#animal-pictures').empty()
 
 // dynamic button list/render
 $(document.body).on('keyup', '#animal-text', function buttonOnEnterKey (event) {
@@ -17,7 +17,7 @@ $(document.body).on('keyup', '#animal-text', function buttonOnEnterKey (event) {
 $('#add-button').on('click', function (event) {
   var inputElement = $('#animal-text')
   var inputString = $(inputElement).val().trim().toLowerCase()
-  $(inputElement).val('')
+  inputElement.val('')
   if (inputString) {
     animals.push(inputString)
     window.localStorage.setItem('animals', JSON.stringify(animals))
@@ -30,9 +30,9 @@ $('#add-button').on('click', function (event) {
 // if ctrlKey down, remove button
 $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton (event) {
   var thisIndex = animals.indexOf(this.textContent)
-  var container = $('<div class="responsive-columns">')
-  // $('#animal-pictures')
+  var heldImages = images[animals[thisIndex]]
   if (event.ctrlKey) {
+    delete heldImages
     animals.splice(thisIndex, 1)
     if (animals.length) {
       window.localStorage.setItem('animals', JSON.stringify(animals))
@@ -41,35 +41,43 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
     return
   }
   if (animalIndex !== thisIndex) {
-    offset = 0
+    offset = heldImages.length || 0
     animalIndex = thisIndex
-    $('#animal-pictures').empty()
+    columns.container.empty()
+    columns.initColumns()
     $('#animal-name').text(animals[animalIndex])
+    if (offset) {
+      heldImages.forEach(function (i) { 
+        newGifThumbnail(i).appendTo(container)
+      })
+    }
   }
-  requestNewGifs(this.textContent, 8, offset)
+  offset += 12
+  requestNewGifs(this.textContent, 12, offset)
     .done(resp => {
       var gifs = resp.data
       gifs.forEach(i => {
-        newGifThumbnail(i).prependTo(container)
+        heldImages.push(i)
+        let target = columns.getShortest()
+        newGifThumbnail(i).prependTo(target)
       })
-      container.prependTo($('#animal-pictures'))
     })
-  offset = offset + 12
 })
 
 // infinite scroll
 $(document).on('scroll', function addGifsToContainer (event) {
   var container = $('<div class="responsive-columns">')
   if ($(this).scrollTop() + $(window).height() === $(this).height()) {
-    offset = offset + 12
-    requestNewGifs(animals[animalIndex], 12, offset)
+    offset += 8
+    requestNewGifs(animals[animalIndex], 8, offset)
       .done(resp => {
         var gifs = resp.data
         if (gifs.length) {
           gifs.forEach(i => {
-            newGifThumbnail(i).appendTo(container)
+            images[animals[animalIndex]].push(i)
+            let target = columns.getShortest()
+            newGifThumbnail(i).appendTo(target)
           })
-          container.appendTo($('#animal-pictures'))
         } else {
           console.log('no more gifs :(')
         }
@@ -93,6 +101,7 @@ function renderButtons (buttons) {
   var container = $('.buttons').empty()
   buttons.forEach(function (btnName) {
     container.append(newAnimalButton(btnName))
+    if (!images[btnName]) { images[btnName] = []} // initalize image array for button
   })
 }
 
@@ -146,5 +155,34 @@ function togglePlay (imgElem) {
     $(imgElem)
       .addClass('still')
       .attr('src', swap)
+  }
+}
+
+var columns = {
+  container: $('#animal-pictures'),
+  colWidth: 406,
+
+  getMaxColumns: function getMaxColumns () {
+    return Math.floor(this.container[0].clientWidth / this.colWidth)
+  },
+
+  initColumns: function initializeColumns () {
+    this.maxColumns = this.getMaxColumns()
+    console.log(this.maxColumns)
+    for (var i = 0; i < this.maxColumns; i++) {
+      $('<div class="responsive-columns">')
+        .appendTo(this.container)
+    }
+    this.columns = this.container.children('.responsive-columns')
+    return this
+  },
+
+  getShortest: function getShortestColumn () {
+    var arr = Array.from(this.columns)
+    return arr.reduce(function (acc, item) {
+      if (acc.clientHeight <= item.clientHeight) {
+        return acc
+      } else return item
+    })
   }
 }
