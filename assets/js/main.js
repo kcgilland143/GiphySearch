@@ -46,23 +46,22 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
     $('#animal-pictures').empty()
     $('#animal-name').text(animals[animalIndex])
   }
-  requestNewGifs(this.textContent, 8, offset)
+  requestNewGifs(this.textContent, 12, offset)
     .done(resp => {
       var gifs = resp.data
       gifs.forEach(i => {
         newGifThumbnail(i).prependTo(container)
       })
       container.prependTo($('#animal-pictures'))
+      offset = offset + 12
     })
-  offset = offset + 12
 })
 
 // infinite scroll
 $(document).on('scroll', function addGifsToContainer (event) {
   var container = $('<div class="responsive-columns">')
   if ($(this).scrollTop() + $(window).height() === $(this).height()) {
-    offset = offset + 12
-    requestNewGifs(animals[animalIndex], 12, offset)
+    requestNewGifs(animals[animalIndex], 8, offset)
       .done(resp => {
         var gifs = resp.data
         if (gifs.length) {
@@ -73,6 +72,7 @@ $(document).on('scroll', function addGifsToContainer (event) {
         } else {
           console.log('no more gifs :(')
         }
+        offset = offset + 12
       })
   }
 })
