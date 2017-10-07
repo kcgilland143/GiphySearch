@@ -25,6 +25,25 @@ $('#add-button').on('click', function (event) {
   }
 })
 
+//remove button
+$('#animal-remove').on('click', function (event) {
+  event.preventDefault()
+  console.log(typeof animalIndex)
+  if (typeof animalIndex === 'number') {
+    console.log('here')
+    delete images[animals[animalIndex]]
+    $('#animal-name').empty()
+    columns.container.empty()
+    animals.splice(animalIndex, 1)
+    if (animals.length) {
+      window.localStorage.setItem('animals', JSON.stringify(animals))
+    } else { window.localStorage.clear() }
+    renderButtons(animals)
+  }
+})
+
+//edit button
+
 // make ajax call for tag
 // if not current animal, clear and render new, else prepend
 // if ctrlKey down, remove button
@@ -34,7 +53,7 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
   if (event.ctrlKey) {
     console.log('deleting..', heldImages)
     delete images[animals[thisIndex]] //remove all held image data
-    if (animalIndex === thisIndex) { 
+    if (animalIndex === thisIndex) {
       $('#animal-name').empty() //empty container if deleting current page
       columns.container.empty()
     }
@@ -68,6 +87,7 @@ $(document.body).on('click', '.animal-button', function getNewGifsOrRemoveButton
     })
 })
 
+// re-Render images on resize if blocks no longer fit
 $(window).on('resize', function reRenderImages (event) {
   console.log(columns.maxColumns !== columns.getMaxColumns())
   if (columns.maxColumns !== columns.getMaxColumns()) {
